@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+# Topology: h1,h2 -- s1 -- s2 -- h3,h4; monitor host attached to s1.
+import os
+import subprocess
+from mininet.net import Mininet
+from mininet.node import RemoteController, OVSKernelSwitch
+from mininet.link import TCLink
+from mininet.cli import CLI
+from mininet.log import setLogLevel
+
+SERVER_IP = '10.0.0.254'
+AGENT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'agent.py')
+
+def build():
+    net = Mininet(controller=None, link=TCLink,
+                  switch=OVSKernelSwitch, autoSetMacs=True)
+
+    net.addController('c0', controller=RemoteController,
+                      ip='127.0.0.1', port=6653)
+
+    s1 = net.addSwitch('s1', protocols='OpenFlow13')
+    s2 = net.addSwitch('s2', protocols='OpenFlow13')
+
+    h = [net.addHost('h%d' % i, ip='10.0.0.%d/24' % i)
+         for i in range(1, 5)]
+
+    monitor = net.addHost('monitor', ip=SERVER_IP + '/24')
+
+    net.addLink(h[0], s1, bw=10)
+    net.addLink(h[1], s1, bw=10)
+    net.addLink(h[2], s2, bw=10)
+    net.addLink(h[3], s2, bw=10)
+    net.addLink(s1, s2, bw=10)
+    net.addLink(monitor, s1, bw=10)
+
+    net.start()
+    return net
+
+def start_agent(host):
+    return host.popen(
+        ['python3', AGENT, host.name, SERVER_IP],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+
+if __name__ == '__main__':
+    setLogLevel('info')
+    net = build()
+    for hst in net.hosts:
+        if hst.name != 'monitor':
+            start_agent(hst)
+    print('*** Agents started on h1-h4 -> %s:9999' % SERVER_IP)
+    CLI(net)
+    net.stop()

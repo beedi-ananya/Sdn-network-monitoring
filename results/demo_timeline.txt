@@ -1,0 +1,11 @@
+[DEMO 11:17:49] Agents started; waiting for telemetry to stabilise
+[DEMO 11:17:59] SCENARIO A: normal traffic (1 Mbps h1->h4) - expect NO alert
+[DEMO 11:18:17] SCENARIO B: congestion (9 Mbps on 10 Mbps links) - expect HIGH_UTILIZATION
+[DEMO 11:18:39] SCENARIO C: host h3 agent killed - expect HOST_SILENT after ~6s
+[DEMO 11:18:53] SCENARIO C: h3 agent restarted - alert clears
+[DEMO 11:19:03] SCENARIO D: 80%% of h2 telemetry dropped - expect TELEMETRY_LOSS
+[DEMO 11:19:28] SCENARIO D: telemetry loss removed
+[DEMO 11:19:53] SCENARIO E: blackhole h1->h4 at s1 while h1 sends 5 Mbps - expect HOST_FLOW_MISMATCH
+[DEMO 11:20:03] SCENARIO E: drop rule installed on s1
+[DEMO 11:20:21] SCENARIO E: drop rule removed
+[DEMO 11:20:41] DEMO FINISHED
